@@ -2,7 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 
-namespace Pt.Data
+namespace PtShared
 {
     public partial class PTContext : DbContext
     {
@@ -15,22 +15,28 @@ namespace Pt.Data
         {
         }
 
-        public static string ConnectionString { get; internal set; }
         public virtual DbSet<Icicinre> Icicinre { get; set; }
         public virtual DbSet<IciciNro> IciciNro { get; set; }
         public virtual DbSet<Savings> Savings { get; set; }
+        public virtual DbSet<Ticker> Ticker { get; set; }
+        public virtual DbSet<TickerHistory> TickerHistory { get; set; }
         public virtual DbSet<YesBankWm> YesBankWm { get; set; }
+        public virtual CombinedView CombinedView { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             if (!optionsBuilder.IsConfigured)
             {
-                optionsBuilder.UseSqlServer(ConnectionString);
+#warning To protect potentially sensitive information in your connection string, you should move it out of source code. See http://go.microsoft.com/fwlink/?LinkId=723263 for guidance on storing connection strings.
+                optionsBuilder.UseSqlServer("Data Source=TRAPPIST-PC\\SQLEXPRESS;Initial Catalog=PT;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=True;ApplicationIntent=ReadWrite;MultiSubnetFailover=False");
             }
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder
+            .Query<CombinedView>().ToView("CombinedView");
+
             modelBuilder.Entity<Icicinre>(entity =>
             {
                 entity.Property(e => e.AverageCostPrice)
@@ -186,6 +192,32 @@ namespace Pt.Data
                 entity.Property(e => e.Amount).HasColumnType("decimal(18, 0)");
 
                 entity.Property(e => e.Date).HasColumnType("datetime");
+            });
+
+            modelBuilder.Entity<Ticker>(entity =>
+            {
+                entity.Property(e => e.SchemeCode)
+                    .HasColumnName("scheme_code")
+                    .HasMaxLength(20);
+
+                entity.Property(e => e.SchemeName)
+                    .HasColumnName("scheme_name")
+                    .HasMaxLength(200);
+            });
+
+            modelBuilder.Entity<TickerHistory>(entity =>
+            {
+                entity.Property(e => e.Daterecorded)
+                    .HasColumnName("daterecorded")
+                    .HasColumnType("datetime");
+
+                entity.Property(e => e.SchemeCode)
+                    .HasColumnName("scheme_code")
+                    .HasMaxLength(20);
+
+                entity.Property(e => e.Value)
+                    .HasColumnName("value")
+                    .HasColumnType("decimal(18, 9)");
             });
 
             modelBuilder.Entity<YesBankWm>(entity =>

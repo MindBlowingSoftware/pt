@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Pt.Data
+namespace PtShared
 {
     public partial class Savings
     {

@@ -1,11 +1,10 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SpaServices.ReactDevelopmentServer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Pt.Data;
+using PtShared;
 
 namespace Pt
 {
@@ -47,7 +46,7 @@ namespace Pt
             app.UseStaticFiles();
             app.UseSpaStaticFiles();
 
-            PTContext.ConnectionString = Configuration.GetConnectionString("ValuesConnectionString");
+            //PTContext.ConnectionString = Configuration.GetConnectionString("ValuesConnectionString");
             
             app.UseMvc(routes =>
             {

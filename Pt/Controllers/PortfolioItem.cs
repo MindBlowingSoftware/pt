@@ -11,7 +11,7 @@ namespace Pt.Controllers
         public decimal LatestImportedAmount { get; set; }
         public string LatestImportedAmountDate { get; set; }
         public decimal AmountInvested { get; set; }
-        public string AmountHistory { get; set; }
-        public string AmountRecordedDateHistory { get; set; }
+        public decimal[] AmountHistory { get; set; }
+        public DateTime[] AmountRecordedDateHistory { get; set; }
     }
 }

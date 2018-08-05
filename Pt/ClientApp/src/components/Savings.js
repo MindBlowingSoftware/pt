@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-//import sparkline from 'react-sparkline'
+import { Sparklines, SparklinesLine } from 'react-sparklines';
 
 export class Savings extends Component {
   displayName = Savings.name
@@ -15,52 +15,65 @@ export class Savings extends Component {
       });
   }
 
-  static renderSavingsTable(savings) {
-      console.log("renderSavingsTable");
-      //var Sparkline = React.require('react-sparkline');
-      var Sparkline = React.sparkline;
+  static renderDetailsRow() {
+      <tr>
+          <td colspan="8">
+              Details
+          </td>
+      </tr>
+  }
 
+  static renderSavingsTable(self,savings) {
+      
       var i = 1;
       return (
-    
       <table className='table'>
         <thead>
           <tr>
-                      <th><p className="text-right">Account</p></th>
-                      <th><p className="text-right">Type</p></th>
-                      <th><p className="text-right">Amount Invested</p></th>
-                      <th><p className="text-right">Latest Amount</p></th>
-                      <th><p className="text-right">Latest Amount Date</p></th>
-                      <th><p className="text-right">Amount History</p></th>
-                      <th><p className="text-right">Date History</p></th>
+            <th><p className="text-right">Name</p></th>
+            <th><p className="text-right">Type</p></th>
+            <th><p className="text-right">Amount Invested</p></th>
+            <th><p className="text-right">Latest Amount</p></th>
+            <th><p className="text-right">P/L</p></th>
+            <th><p className="text-right">P/L %</p></th>
+            <th><p className="text-right">Latest Amount Date</p></th>
+            <th><p className="text-right">Sparkline</p></th>                      
           </tr>
         </thead>
         <tbody>
                   {
                       savings.map(item =>
-                          <tr key={i++}>
-                              <td><p className="text-right">{item.name}</p></td>
+                          <tr onClick={self.handleClick} key={i++} className={item.amount - item.amountInvested >= 0 ? 'text-right bg-success' : 'text-right bg-danger'}>
+                              <td><p className="text-right" title={item.name}>{item.name.substring(0, 10)}</p></td>
                               <td><p className="text-right">{item.type}</p></td>
                               <td><p className="text-right">{item.amountInvested}</p></td>
-                              <td><p className="text-right">{item.latestImportedAmount}</p></td>
-                              <td><p className="text-right">{item.latestImportedAmount}</p></td>
-                              <td><p className="text-right">{item.amountHistory}<Sparkline data={1,4,4,7,5,9,10}/></p></td>
-                              <td><p className="text-right">{item.amountRecordedDateHistory}</p></td>
-            </tr>
-          )}
+                              <td><p className="text-right">{item.amount}</p></td>
+                              <td><p className="text-right">{Math.round(item.amount - item.amountInvested)}</p></td>
+                              <td><p className="text-right">{Math.round((item.amount - item.amountInvested) * 100 / item.amountInvested)}%</p></td>
+                              <td><p className="text-right">{item.date}</p></td>
+                              <td>
+                                  <Sparklines data={item.amountHistory} limit={5} width={100} height={20} margin={5}><SparklinesLine /></Sparklines>
+                              </td>                              
+                          </tr>
+                         
+                      )}
+                  
         </tbody>
-      </table>
-    );
+          </table>          
+      );
+  }
+  handleClick() {
+      console.log("hi")
   }
 
   render() {
     let contents = this.state.loading
         ? <p><em>Loading...</em></p>
-          : Savings.renderSavingsTable(this.state.savings);
+          : Savings.renderSavingsTable(this,this.state.savings);
     let totalCv = 0,totalAi = 0;
     
     this.state.savings.map(item => {
-        totalCv += parseInt(item.latestImportedAmount);
+        totalCv += parseInt(item.amount);
         totalAi += parseInt(item.amountInvested);
     });
     return (
@@ -68,7 +81,7 @@ export class Savings extends Component {
             <h1>Savings</h1>
             <h2>Current Value {totalCv}</h2>
             <h2>Amount Invested {totalAi}</h2>
-        <p>&nbsp;</p>
+            <p>&nbsp;</p>
         {contents}
       </div>
     )
