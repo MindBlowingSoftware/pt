@@ -26,6 +26,7 @@ namespace Pt.Controllers
                 .GroupBy(a => a.Code)
                 .Select(group => new PortfolioItem
                 {
+                    Id = group.Max(b => b.Id),
                     AmountInvested = group.Max(b => b.AmountInvested) / 50,
                     Amount = Math.Round(group.OrderByDescending(b => b.ValueDate).First().Value / 50,0),
                     Date = group.OrderByDescending(b => b.ValueDate).First().ValueDate,

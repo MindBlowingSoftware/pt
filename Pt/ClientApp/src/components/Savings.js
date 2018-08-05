@@ -43,7 +43,7 @@ export class Savings extends Component {
         <tbody>
                   {
                       savings.map(item =>
-                          <tr onClick={self.handleClick} key={i++} className={item.amount - item.amountInvested >= 0 ? 'text-right bg-success' : 'text-right bg-danger'}>
+                          <tr key={item.id} className={item.amount - item.amountInvested >= 0 ? 'text-right bg-success' : 'text-right bg-danger'}>
                               <td><p className="text-right" title={item.name}>{item.name.substring(0, 10)}</p></td>
                               <td><p className="text-right">{item.type}</p></td>
                               <td><p className="text-right">{item.amountInvested}</p></td>
