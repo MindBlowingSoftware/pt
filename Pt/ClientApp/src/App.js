@@ -5,6 +5,7 @@ import { Home } from './components/Home';
 import { FetchData } from './components/FetchData';
 import { Counter } from './components/Counter';
 import { Savings } from './components/Savings'
+import { SavingDetail } from './components/savingDetail'
 
 export default class App extends Component {
   displayName = App.name
@@ -16,6 +17,7 @@ export default class App extends Component {
         <Route path='/counter' component={Counter} />
         <Route path='/fetchdata' component={FetchData} />
         <Route path='/savings' component={Savings} />
+        <Route path='/savingDetail/:id' component={SavingDetail} />
       </Layout>
     );
   }

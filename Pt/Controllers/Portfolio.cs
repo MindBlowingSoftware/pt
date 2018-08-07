@@ -35,7 +35,8 @@ namespace Pt.Controllers
                     AmountHistory = group.OrderBy(b => b.ValueDate)
                         .Select(b => Math.Round(b.Value / 50,0)).ToArray(),
                     AmountRecordedDateHistory = group.OrderByDescending(b => b.ValueDate)
-                        .Select(b => b.ValueDate).ToArray()
+                        .Select(b => b.ValueDate).ToArray(),
+                    Code = group.Key
                 });
             portfolio = portfolio.OrderBy(a=>a.Type).OrderByDescending(a => a.AmountInvested);
             return portfolio;
@@ -43,9 +44,27 @@ namespace Pt.Controllers
 
         // GET api/<controller>/5
         [HttpGet("{id}")]
-        public string Get(int id)
+        public PortfolioItem Get(string id)
         {
-            return "value";
+            var combinedView = _dbContext.Query<CombinedView>().Where(a=>a.Code == id);
+
+            var portfolio = combinedView
+                .GroupBy(a => a.Code)
+                .Select(group => new PortfolioItem
+                {
+                    Id = group.Max(b => b.Id),
+                    AmountInvested = group.Max(b => b.AmountInvested) / 50,
+                    Amount = Math.Round(group.OrderByDescending(b => b.ValueDate).First().Value / 50, 0),
+                    Date = group.OrderByDescending(b => b.ValueDate).First().ValueDate,
+                    Name = group.Max(b => b.Name),
+                    Type = group.Max(b => b.Type),
+                    AmountHistory = group.OrderBy(b => b.ValueDate)
+                        .Select(b => Math.Round(b.Value / 50, 0)).ToArray(),
+                    AmountRecordedDateHistory = group.OrderByDescending(b => b.ValueDate)
+                        .Select(b => b.ValueDate).ToArray(),
+                    Code = group.Key
+                }).FirstOrDefault();
+            return portfolio;
         }
 
         // POST api/<controller>

@@ -14,5 +14,6 @@ namespace Pt.Controllers
         public decimal AmountInvested { get; set; }
         public decimal[] AmountHistory { get; set; }
         public DateTime[] AmountRecordedDateHistory { get; set; }
+        public string Code { get; set; }
     }
 }
