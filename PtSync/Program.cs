@@ -21,7 +21,9 @@ namespace PtSync
                 var tickers = dbContext.Ticker.Where(t => !string.IsNullOrWhiteSpace(t.Url));
                 foreach (var ticker in tickers)
                 {
-                    var lastTickerRecorded = dbContext.TickerHistory.Max(a => a.Daterecorded);
+                    var lastTickerRecorded = dbContext.TickerHistory
+                        .Where(a=>a.SchemeCode == ticker.SchemeCode)
+                        .Max(a => a.Daterecorded);
 
                     if (lastTickerRecorded.HasValue && (DateTime.Now - lastTickerRecorded.Value) < refreshTimespan)
                         continue;
@@ -39,7 +41,7 @@ namespace PtSync
                         dbContext.TickerHistory.Add(tickerHistory);
                         
                     }
-                    //Task.Delay(1000 * 60 * 2);
+                    Task.Delay(1000 * 60 * 5);
                 }
                 dbContext.SaveChanges();
             }
@@ -64,15 +66,28 @@ namespace PtSync
                         HtmlDocument doc = new HtmlDocument();
 
                         doc.Load(stream);
-
-                        //HtmlNodeCollection links = doc.DocumentNode.SelectNodes("//a[@href]");//the parameter is use xpath see: https://www.w3schools.com/xml/xml_xpath.asp 
-                        HtmlNodeCollection links = doc.DocumentNode.SelectNodes("//title");//the parameter is use xpath see: https://www.w3schools.com/xml/xml_xpath.asp 
-                        var match = Regex.Split(links[0].InnerText.Split('[')[1], @"[^0-9\.]+").FirstOrDefault(c => c != "." && c.Trim() != "");
-                        if (match != null)
+                        if(url.Contains("https://www.moneycontrol.com/mutual-funds/nav"))
                         {
-                            return Convert.ToDecimal(match);
+                            HtmlNodeCollection links = doc.DocumentNode.SelectNodes("//title");//the parameter is use xpath see: https://www.w3schools.com/xml/xml_xpath.asp 
+                            var match = Regex.Split(links[0].InnerText.Split('[')[1], @"[^0-9\.]+")
+                                .FirstOrDefault(c => c != "." && c.Trim() != "");
+                            if (match != null)
+                            {
+                                return Convert.ToDecimal(match);
+                            }
+                            return null;
                         }
-                        return null;
+                        else if (url.Contains("https://www.moneycontrol.com/india/stockpricequote"))
+                        {
+                            HtmlNode priceTick = doc.GetElementbyId("Nse_Prc_tick");//the parameter is use xpath see: https://www.w3schools.com/xml/xml_xpath.asp 
+                            var match = priceTick.InnerText;
+                            if (match != null)
+                            {
+                                return Convert.ToDecimal(match);
+                            }
+                            return null;
+                        }
+                        
                     }
                     return null;
                 }

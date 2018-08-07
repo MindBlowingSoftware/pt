@@ -21,26 +21,12 @@ namespace Pt.Controllers
         public IEnumerable<PortfolioItem> Get()
         {
             var combinedView = _dbContext.Query<CombinedView>();
-
-            var portfolio = combinedView
-                .GroupBy(a => a.Code)
-                .Select(group => new PortfolioItem
-                {
-                    Id = group.Max(b => b.Id),
-                    AmountInvested = group.Max(b => b.AmountInvested) / 50,
-                    Amount = Math.Round(group.OrderByDescending(b => b.ValueDate).First().Value / 50,0),
-                    Date = group.OrderByDescending(b => b.ValueDate).First().ValueDate,
-                    Name = group.Max(b => b.Name),
-                    Type = group.Max(b => b.Type),
-                    AmountHistory = group.OrderBy(b => b.ValueDate)
-                        .Select(b => Math.Round(b.Value / 50,0)).ToArray(),
-                    AmountRecordedDateHistory = group.OrderByDescending(b => b.ValueDate)
-                        .Select(b => b.ValueDate).ToArray(),
-                    Code = group.Key
-                });
-            portfolio = portfolio.OrderBy(a=>a.Type).OrderByDescending(a => a.AmountInvested);
+            IQueryable<PortfolioItem> portfolio = GetPortfolioGroupedByCode(combinedView);
+            portfolio = portfolio.OrderBy(a => a.Type).OrderByDescending(a => a.AmountInvested);
             return portfolio;
         }
+
+        
 
         // GET api/<controller>/5
         [HttpGet("{id}")]
@@ -48,22 +34,7 @@ namespace Pt.Controllers
         {
             var combinedView = _dbContext.Query<CombinedView>().Where(a=>a.Code == id);
 
-            var portfolio = combinedView
-                .GroupBy(a => a.Code)
-                .Select(group => new PortfolioItem
-                {
-                    Id = group.Max(b => b.Id),
-                    AmountInvested = group.Max(b => b.AmountInvested) / 50,
-                    Amount = Math.Round(group.OrderByDescending(b => b.ValueDate).First().Value / 50, 0),
-                    Date = group.OrderByDescending(b => b.ValueDate).First().ValueDate,
-                    Name = group.Max(b => b.Name),
-                    Type = group.Max(b => b.Type),
-                    AmountHistory = group.OrderBy(b => b.ValueDate)
-                        .Select(b => Math.Round(b.Value / 50, 0)).ToArray(),
-                    AmountRecordedDateHistory = group.OrderByDescending(b => b.ValueDate)
-                        .Select(b => b.ValueDate).ToArray(),
-                    Code = group.Key
-                }).FirstOrDefault();
+            var portfolio = GetPortfolioGroupedByCode(combinedView).FirstOrDefault();
             return portfolio;
         }
 
@@ -83,6 +54,30 @@ namespace Pt.Controllers
         [HttpDelete("{id}")]
         public void Delete(int id)
         {
+        }
+
+        private static IQueryable<PortfolioItem> GetPortfolioGroupedByCode(IQueryable<CombinedView> combinedView)
+        {
+            return combinedView
+                .GroupBy(a => a.Code)
+                .Select(group => new PortfolioItem
+                {
+                    Id = group.Max(b => b.Id),
+                    AmountInvested = group.Max(b => b.AmountInvested) / 50,
+                    Amount = Math.Round(group.OrderByDescending(b => b.ValueDate).First().Value / 50, 0),
+                    Date = group.OrderByDescending(b => b.ValueDate).First().ValueDate,
+                    Name = group.Max(b => b.Name),
+                    Type = group.Max(b => b.Type),
+                    AmountHistory = group.OrderByDescending(b => b.ValueDate)
+                        .Take(20)
+                        .OrderBy(a=>a.ValueDate)
+                        .Select(b => Math.Round(b.Value / 50, 0)).ToArray(),
+                    AmountRecordedDateHistory = group.OrderByDescending(b => b.ValueDate)
+                        .Take(20)
+                        .OrderBy(a => a.ValueDate)
+                        .Select(b => b.ValueDate).ToArray(),
+                    Code = group.Key
+                });
         }
     }
 }

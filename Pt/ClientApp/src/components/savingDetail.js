@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Sparklines, SparklinesLine } from 'react-sparklines';
+//import { Chart, Axis, Series, Tooltip, Cursor, Line } from "react-charts";
 
 export class SavingDetail extends Component {
     displayName = SavingDetail.name
@@ -23,7 +23,9 @@ export class SavingDetail extends Component {
 
   static renderSavingDetail(saving) {
       return (
-          <div>{saving.name}</div>  
+          <div>
+              
+          </div>  
       );
   }
 
