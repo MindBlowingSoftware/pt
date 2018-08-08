@@ -41,7 +41,8 @@ namespace PtSync
                         dbContext.TickerHistory.Add(tickerHistory);
                         
                     }
-                    Task.Delay(1000 * 60 * 5);
+                    var task =  Task.Delay(1000 * 60 * 5);
+                    task.Wait();
                 }
                 dbContext.SaveChanges();
             }

@@ -1,5 +1,7 @@
 import React, { Component } from 'react';
+import { Line } from 'react-chartjs';
 //import { Chart, Axis, Series, Tooltip, Cursor, Line } from "react-charts";
+
 
 export class SavingDetail extends Component {
     displayName = SavingDetail.name
@@ -22,9 +24,28 @@ export class SavingDetail extends Component {
   }
 
   static renderSavingDetail(saving) {
+      console.log(saving);
+      console.log(saving.amountRecordedDateHistory);
+      console.log(saving.amountHistory);
+      var data = {
+          labels: saving.amountRecordedDateHistory,
+          datasets: [
+              {
+                  label: "My First dataset",
+                  fillColor: "rgba(220,220,220,0.2)",
+                  strokeColor: "rgba(220,220,220,1)",
+                  pointColor: "rgba(220,220,220,1)",
+                  pointStrokeColor: "#fff",
+                  pointHighlightFill: "#fff",
+                  pointHighlightStroke: "rgba(220,220,220,1)",
+                  data: saving.amountHistory
+              }
+          ]
+      }; 
       return (
           <div>
-              
+              <h1>{saving.name}</h1>
+              <Line data={data} width="600" height="250" />
           </div>  
       );
   }

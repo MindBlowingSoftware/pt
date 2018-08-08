@@ -34,7 +34,24 @@ namespace Pt.Controllers
         {
             var combinedView = _dbContext.Query<CombinedView>().Where(a=>a.Code == id);
 
-            var portfolio = GetPortfolioGroupedByCode(combinedView).FirstOrDefault();
+            var portfolio = new PortfolioItem()
+            {
+                Id = combinedView.Max(b => b.Id),
+                AmountInvested = Math.Round(combinedView.Max(b => b.AmountInvested) / 50, 2),
+                Amount = Math.Round(combinedView.OrderByDescending(b => b.ValueDate).First().Value / 50, 2),
+                Date = combinedView.OrderByDescending(b => b.ValueDate).First().ValueDate,
+                Name = combinedView.Max(b => b.Name),
+                Type = combinedView.Max(b => b.Type),
+                AmountHistory = combinedView.OrderByDescending(b => b.ValueDate)
+                        .Take(20)
+                        .OrderBy(a => a.ValueDate)
+                        .Select(b => Math.Round(b.Value / 50, 2)).ToArray(),
+                AmountRecordedDateHistory = combinedView.OrderByDescending(b => b.ValueDate)
+                        .Take(20)
+                        .OrderBy(a => a.ValueDate)
+                        .Select(b => b.ValueDate).ToArray(),
+                Code = id
+            };
             return portfolio;
         }
 
@@ -63,15 +80,15 @@ namespace Pt.Controllers
                 .Select(group => new PortfolioItem
                 {
                     Id = group.Max(b => b.Id),
-                    AmountInvested = group.Max(b => b.AmountInvested) / 50,
-                    Amount = Math.Round(group.OrderByDescending(b => b.ValueDate).First().Value / 50, 0),
+                    AmountInvested = Math.Round(group.Max(b => b.AmountInvested) / 50,2),
+                    Amount = Math.Round(group.OrderByDescending(b => b.ValueDate).First().Value / 50, 2),
                     Date = group.OrderByDescending(b => b.ValueDate).First().ValueDate,
                     Name = group.Max(b => b.Name),
                     Type = group.Max(b => b.Type),
                     AmountHistory = group.OrderByDescending(b => b.ValueDate)
                         .Take(20)
                         .OrderBy(a=>a.ValueDate)
-                        .Select(b => Math.Round(b.Value / 50, 0)).ToArray(),
+                        .Select(b => Math.Round(b.Value / 50, 2)).ToArray(),
                     AmountRecordedDateHistory = group.OrderByDescending(b => b.ValueDate)
                         .Take(20)
                         .OrderBy(a => a.ValueDate)
