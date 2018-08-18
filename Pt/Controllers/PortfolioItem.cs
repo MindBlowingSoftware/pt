@@ -16,4 +16,10 @@ namespace Pt.Controllers
         public DateTime[] AmountRecordedDateHistory { get; set; }
         public string Code { get; set; }
     }
+
+    public class PortfolioDetail : PortfolioItem
+    {
+        public decimal[] SameTypeAmountHistory { get; set; }
+        public DateTime[] SameTypeAmountRecordedDateHistory { get; set; }
+    }
 }
