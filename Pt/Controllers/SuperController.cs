@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using Microsoft.AspNetCore.Mvc;
 using PtShared;
 
@@ -7,25 +9,33 @@ using PtShared;
 namespace Pt.Controllers
 {
     [Route("api/[controller]")]
-    public class SavingsController : Controller
+    public class SuperController : Controller
     {
         private PTContext _dbContext;
-        public SavingsController(PTContext dbContext)
+        private static readonly decimal exr = 0.75m;
+        public SuperController(PTContext dbContext)
         {
             _dbContext = dbContext;
         }
         // GET: api/<controller>
         [HttpGet("[action]")]
-        public IEnumerable<Savings> Get()
+        public IEnumerable<PortfolioItem> Get()
         {
-            return _dbContext.Savings;
+            var combinedView = _dbContext.Query<CombinedView>().Where(a => a.Type == "SMSF").ToList();
+            List<PortfolioItem> portfolio = Shared.GetPortfolioGroupedByCode(combinedView, 1.3m);
+            portfolio = portfolio.OrderBy(a => a.Type).ThenByDescending(a => a.AmountInvested).ToList();
+            return portfolio;
         }
+
+        
 
         // GET api/<controller>/5
         [HttpGet("{id}")]
-        public string Get(int id)
+        public PortfolioItem Get(string id)
         {
-            return "value";
+            var combinedView = _dbContext.Query<CombinedView>().Where(a=>a.Code == id);
+
+            return Shared.Get(combinedView,1.3m);
         }
 
         // POST api/<controller>

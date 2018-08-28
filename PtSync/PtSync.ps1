@@ -1,1 +1,2 @@
-﻿dotnet run --project .\PtSync.csproj
+﻿dotnet run
+dotnet run super

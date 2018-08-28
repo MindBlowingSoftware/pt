@@ -6,6 +6,8 @@ using HtmlAgilityPack;
 using System.Text.RegularExpressions;
 using System.Linq;
 using PtShared;
+using System.Collections.Generic;
+using System.Globalization;
 
 namespace PtSync
 {
@@ -13,8 +15,11 @@ namespace PtSync
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("Hello World!");
-            var refreshTimespan = new TimeSpan(12, 0, 0);
+            Console.WriteLine($"Options provided {(args?.Length > 0 ? args[0] : "None")}");
+
+
+            if (args?.Length > 0 ? args[0] == "super": false) { UpdateSuper(); return; }
+            var refreshTimespan = new TimeSpan(4, 0, 0);
             using (var dbContext = new PTContext())
             {
                 var program = new Program();
@@ -48,6 +53,57 @@ namespace PtSync
             }
                 //PTContext.ConnectionString = "Data Source=TRAPPIST-PC\\SQLEXPRESS;Initial Catalog=PT;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=True;ApplicationIntent=ReadWrite;MultiSubnetFailover=False";
                     
+        }
+
+        private static void UpdateSuper()
+        {
+            var dir = @"C:\Users\Trappist\Downloads\";
+            var files = Directory.GetFiles(dir, "ActivityStatement.*.html");
+            using (var dbContext = new PTContext())
+            {
+                foreach (var file in files)
+                {
+                    Console.Write(file);
+                    string date = file
+                        .Replace(dir, "")
+                        .Replace("ActivityStatement.", "")
+                        .Replace(".html", "");
+                    Console.Write(date);
+
+                    var fileContents = File.ReadAllText(file);
+                    HtmlDocument doc = new HtmlDocument();
+                    doc.LoadHtml(fileContents);
+                    var table = doc.GetElementbyId("tblOpenPositions_U1688065Body");
+                    var tbodies = table.ChildNodes
+                        .Where(a => a.Name == "div").First()
+                        .ChildNodes.Where(a => a.Name == "table").First()
+                        .ChildNodes.Where(a => a.Name == "tbody");
+                    foreach (var tbody in tbodies)
+                    {
+                        var row = tbody.ChildNodes.Where(a => a.Name == "tr").First();
+                        if(row?.Attributes["class"]?.Value == "row-summary no-details")
+                        {
+                            var tds = row.ChildNodes.Where(a => a.Name == "td").ToList();
+                            var ib = new Ib();
+                            ib.Dateimported = DateTime.ParseExact(date, "yyyyMMdd", CultureInfo.InvariantCulture);
+                            ib.Symbol = tds[0].InnerText;
+                            ib.Quantity = Convert.ToInt32(tds[1].InnerText);
+                            ib.Mult = tds[2].InnerText;
+                            ib.CostPrice = Convert.ToDecimal(tds[3].InnerText);
+                            ib.CostBasis = Convert.ToDecimal(tds[4].InnerText);
+                            ib.ClosePrice = Convert.ToDecimal(tds[5].InnerText);
+                            ib.Value = Convert.ToDecimal(tds[6].InnerText);
+                            ib.UnrealizedPL = Convert.ToDecimal(tds[7].InnerText);
+                            ib.Code = tds[8].InnerText;
+                            dbContext.Ib.Add(ib);
+                        }
+
+                        
+                    }
+                    File.Move(file, @"C:\Data\Imported\" + file.Replace(dir, ""));
+                }
+                dbContext.SaveChanges();
+            }
         }
 
         private async Task<decimal?> GetTickerUpdate(string url)
@@ -88,7 +144,17 @@ namespace PtSync
                             }
                             return null;
                         }
-                        
+                        else if (url.Contains("https://quotes.wsj.com/etf"))
+                        {
+                            HtmlNode priceTick = doc.GetElementbyId("quote_val");//the parameter is use xpath see: https://www.w3schools.com/xml/xml_xpath.asp 
+                            var match = priceTick.InnerText;
+                            if (match != null)
+                            {
+                                return Convert.ToDecimal(match);
+                            }
+                            return null;
+                        }
+
                     }
                     return null;
                 }

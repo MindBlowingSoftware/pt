@@ -3,15 +3,16 @@ import { SavingDetail } from './savingDetail';
 import { Sparklines, SparklinesLine } from 'react-sparklines';
 import { LinkContainer } from 'react-router-bootstrap';
 import { Link } from 'react-router-dom';
+import { Savings } from './Savings';
 
-export class Savings extends Component {
-  displayName = Savings.name
+export class Super extends Component {
+    displayName = Super.name
 
   constructor(props) {
     super(props);
     this.state = { savings: [], loading: true };
 
-    fetch('api/Portfolio/Get')
+    fetch('api/Super/Get')
       .then(response => response.json())
       .then(data => {
           this.setState({ savings: data, loading: false });
@@ -19,57 +20,7 @@ export class Savings extends Component {
     this.render = this.render.bind(this);
   }
 
-  static renderSavingsTable(savings) {
-      var i = 1;
-      return (
-      <table className='table'>
-        <thead>
-          <tr>
-            <th><p className="text-right">Name</p></th>
-            <th><p className="text-right">Type</p></th>
-            <th><p className="text-right">Amount Invested</p></th>
-            <th><p className="text-right">Latest Amount</p></th>
-            <th><p className="text-right">P/L</p></th>
-            <th><p className="text-right">P/L %</p></th>
-            <th><p className="text-right">Today%</p></th>
-            <th><p className="text-right">5</p></th>
-            <th><p className="text-right">20</p></th>                      
-            <th><p className="text-right">100</p></th>            
-          </tr>
-        </thead>
-        <tbody>
-                  {
-                      savings.map(item =>
-                          <tr key={item.id} className={item.amount - item.amountInvested >= 0 ? 'text-right bg-success' : 'text-right bg-danger'}>
-                              <td><p className="text-right" title={item.name}><Link to={`/savingDetail/${item.code}`}>{item.name.substring(0, 10)}</Link></p></td>
-                              <td><p className="text-right">{item.type.substring(0,2)}</p></td>
-                              <td><p className="text-right">{item.amountInvested}</p></td>
-                              <td><p className="text-right">{item.amount}</p></td>
-                              <td><p className="text-right">{Math.round(item.amount - item.amountInvested)}</p></td>
-                              <td><p className="text-right">{Math.round((item.amount - item.amountInvested) * 100 / item.amountInvested)}%</p></td>
-                              <td>
-                                  <Sparklines data={item.cmpHistory} limit={2} width={100} height={20} margin={5}><SparklinesLine /></Sparklines>
-                                  {item.mostRecentPct}%
-                              </td>
-                              <td>
-                                  <Sparklines data={item.cmpHistory} limit={5} width={100} height={20} margin={5}><SparklinesLine /></Sparklines>
-                                  {item.last5DaysPct}%&nbsp;&nbsp;{item.last5DaysMpPct}%
-                              </td>
-                              <td>
-                                  <Sparklines data={item.cmpHistory} limit={20} width={100} height={20} margin={5}><SparklinesLine /></Sparklines>
-                                  {item.last5DaysPct}%&nbsp;&nbsp;{item.last20DaysMpPct}%
-                              </td> 
-                              <td>
-                                  <Sparklines data={item.cmpHistory} limit={100} width={100} height={20} margin={5}><SparklinesLine /></Sparklines>
-                                  {item.last100DaysPct}%&nbsp;&nbsp;{item.last100DaysMpPct}%
-                              </td> 
-                          </tr>
-                      )}
-                  
-        </tbody>
-          </table>          
-      );
-  }
+  
   handleClick() {
       console.log("hi")
   }
@@ -85,18 +36,9 @@ export class Savings extends Component {
     this.state.savings.map(item => {
         id = item.code;
         console.log(id);
-        if (item.type === "Stocks") {
-            totalCs += parseInt(item.amount);
-            totalAs += parseInt(item.amountInvested);
-        }
-        else if (item.type === "Mutual Funds") {
-            totalCmf += parseInt(item.amount);
-            totalAmf += parseInt(item.amountInvested);
-        }
-        else if (item.type === "Savings") {
-            totalCsv += parseInt(item.amount);
-            totalAsv += parseInt(item.amountInvested);
-        }        
+        totalCs += parseInt(item.amount);
+        totalAs += parseInt(item.amountInvested);
+       
     });
     console.log(totalCs);
     console.log(totalCmf);

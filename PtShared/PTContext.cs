@@ -15,13 +15,13 @@ namespace PtShared
         {
         }
 
+        public virtual DbSet<Ib> Ib { get; set; }
         public virtual DbSet<Icicinre> Icicinre { get; set; }
         public virtual DbSet<IciciNro> IciciNro { get; set; }
         public virtual DbSet<Savings> Savings { get; set; }
         public virtual DbSet<Ticker> Ticker { get; set; }
         public virtual DbSet<TickerHistory> TickerHistory { get; set; }
         public virtual DbSet<YesBankWm> YesBankWm { get; set; }
-        public virtual CombinedView CombinedView { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -35,7 +35,28 @@ namespace PtShared
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder
-            .Query<CombinedView>().ToView("CombinedView");
+        .Query<CombinedView>().ToView("CombinedView");
+
+            modelBuilder.Entity<Ib>(entity =>
+            {
+                entity.Property(e => e.ClosePrice).HasColumnName("Close Price");
+
+                entity.Property(e => e.Code).HasMaxLength(20);
+
+                entity.Property(e => e.CostBasis).HasColumnName("Cost Basis");
+
+                entity.Property(e => e.CostPrice).HasColumnName("Cost Price");
+
+                entity.Property(e => e.Dateimported)
+                    .HasColumnName("dateimported")
+                    .HasColumnType("datetime");
+
+                entity.Property(e => e.Mult).HasMaxLength(20);
+
+                entity.Property(e => e.Symbol).HasMaxLength(20);
+
+                entity.Property(e => e.UnrealizedPL).HasColumnName("Unrealized P/L");
+            });
 
             modelBuilder.Entity<Icicinre>(entity =>
             {
