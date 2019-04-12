@@ -12,5 +12,6 @@ namespace PtShared
         public DateTime ValueDate { get; set; }
         public string Type { get; set; }
         public decimal Cmp { get; set; }
+        public decimal Qty { get; set; }
     }
 }

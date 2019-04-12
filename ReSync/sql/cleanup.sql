@@ -1,0 +1,36 @@
+----select max(convert(datetime, [Column 10], 103)) [date] from results
+----set dateformat dmy
+----select top 100 * from results
+----where isdate([Column 10]) != 1
+
+----select max(convert(datetime, '18/12/1990', 103))
+--delete T1 from (
+--SELECT   
+--    CASE WHEN TRY_CONVERT(datetime, [Column 10], 103) IS NULL   
+--    THEN cast('1753-1-1' as datetime)
+--    ELSE convert(datetime, [Column 10], 103) 
+--END AS Result, *
+--From results ) T1
+--where Result = cast('1753-1-1' as datetime)
+
+----delete T1  from (
+----select CASE WHEN TRY_CONVERT(datetime, [Column 13], 112) IS NULL   
+----    THEN cast('1753-1-1' as datetime)
+----	ELSE convert(datetime, [Column 13], 112) 
+----	END as result, *
+----from results
+----where len([Column 10]) != 10) T1
+----where Result = cast('1753-1-1' as datetime)
+
+--select *  from (
+--SELECT   
+--    CASE WHEN TRY_CONVERT(datetime, [Column 10], 103) IS NULL   
+--    THEN 
+--		CASE WHEN TRY_CONVERT(datetime, [Column 13], 112) IS NULL
+--		THEN  cast('1753-1-1' as datetime)
+--		ELSE convert(datetime, [Column 10], 112)
+--	END
+--    ELSE convert(datetime, [Column 10], 103)
+--END AS Result, *
+--From results ) T1
+--where Result = cast('1753-1-1' as datetime)

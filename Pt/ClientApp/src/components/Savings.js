@@ -25,44 +25,48 @@ export class Savings extends Component {
       <table className='table'>
         <thead>
           <tr>
-            <th><p className="text-right">Name</p></th>
-            <th><p className="text-right">Type</p></th>
-            <th><p className="text-right">Amount Invested</p></th>
-            <th><p className="text-right">Latest Amount</p></th>
-            <th><p className="text-right">P/L</p></th>
-            <th><p className="text-right">P/L %</p></th>
-            <th><p className="text-right">Today%</p></th>
-            <th><p className="text-right">5</p></th>
-            <th><p className="text-right">20</p></th>                      
-            <th><p className="text-right">100</p></th>            
+            <th><p className="text-center">Name</p></th>
+            <th><p className="text-center">Type</p></th>
+            <th><p className="text-center">Amount Invested</p></th>
+            <th><p className="text-center">Qty</p></th>
+            <th><p className="text-center">Cmp</p></th>
+            <th><p className="text-center">Latest Amount</p></th>
+            <th><p className="text-center">P/L</p></th>
+            <th><p className="text-center">P/L %</p></th>
+            <th><p className="text-center">Today%</p></th>
+            <th><p className="text-center">5</p></th>
+            <th><p className="text-center">20</p></th>                      
+            <th><p className="text-center">100</p></th>            
           </tr>
         </thead>
         <tbody>
                   {
                       savings.map(item =>
-                          <tr key={item.id} className={item.amount - item.amountInvested >= 0 ? 'text-right bg-success' : 'text-right bg-danger'}>
+                          <tr key={item.id}>
                               <td><p className="text-right" title={item.name}><Link to={`/savingDetail/${item.code}`}>{item.name.substring(0, 10)}</Link></p></td>
                               <td><p className="text-right">{item.type.substring(0,2)}</p></td>
                               <td><p className="text-right">{item.amountInvested}</p></td>
+                              <td><p className="text-right">{item.qty}</p></td>
+                              <td><p className="text-right">{item.cmpHistoryDesc[0]}</p></td>
                               <td><p className="text-right">{item.amount}</p></td>
-                              <td><p className="text-right">{Math.round(item.amount - item.amountInvested)}</p></td>
-                              <td><p className="text-right">{Math.round((item.amount - item.amountInvested) * 100 / item.amountInvested)}%</p></td>
-                              <td>
+                              <td className="text-right" className={item.amount - item.amountInvested >= 0 ? 'text-right bg-success' : 'text-right bg-danger'}><p>{(item.amount - item.amountInvested).toFixed(2)}</p></td>
+                              <td className="text-right" className={((item.amount - item.amountInvested) * 100 / item.amountInvested) >= 0 ? 'text-right bg-success' : 'text-right bg-danger'}><p>{((item.amount - item.amountInvested) * 100 / item.amountInvested).toFixed(2)}%</p></td>
+                              <td className={item.mostRecentPct >= 0 ? 'text-right bg-success' : 'text-right bg-danger'}>
                                   <Sparklines data={item.cmpHistory} limit={2} width={100} height={20} margin={5}><SparklinesLine /></Sparklines>
                                   {item.mostRecentPct}%
                               </td>
-                              <td>
+                              <td className={item.last5DaysMpPct >= 0 ? 'text-right bg-success' : 'text-right bg-danger'}>
                                   <Sparklines data={item.cmpHistory} limit={5} width={100} height={20} margin={5}><SparklinesLine /></Sparklines>
                                   {item.last5DaysPct}%&nbsp;&nbsp;{item.last5DaysMpPct}%
                               </td>
-                              <td>
+                              <td className={item.last20DaysMpPct >= 0 ? 'text-right bg-success' : 'text-right bg-danger'}>
                                   <Sparklines data={item.cmpHistory} limit={20} width={100} height={20} margin={5}><SparklinesLine /></Sparklines>
                                   {item.last5DaysPct}%&nbsp;&nbsp;{item.last20DaysMpPct}%
                               </td> 
-                              <td>
+                              <td className={item.last100DaysMpPct >= 0 ? 'text-right bg-success' : 'text-right bg-danger'}>
                                   <Sparklines data={item.cmpHistory} limit={100} width={100} height={20} margin={5}><SparklinesLine /></Sparklines>
                                   {item.last100DaysPct}%&nbsp;&nbsp;{item.last100DaysMpPct}%
-                              </td> 
+                              </td>
                           </tr>
                       )}
                   
@@ -70,14 +74,12 @@ export class Savings extends Component {
           </table>          
       );
   }
-  handleClick() {
-      console.log("hi")
-  }
 
   render() {
-    let contents = this.state.loading
-        ? <p><em>Loading...</em></p>
-          : Savings.renderSavingsTable(this.state.savings);
+
+    let savingsWithoutBankAccounts = [];
+      
+
     let totalCv = 0, totalCmf = 0, totalCs = 0, totalCsv = 0;
     let totalAv = 0, totalAmf = 0, totalAs = 0, totalAsv = 0;
 
@@ -88,16 +90,22 @@ export class Savings extends Component {
         if (item.type === "Stocks") {
             totalCs += parseInt(item.amount);
             totalAs += parseInt(item.amountInvested);
+            savingsWithoutBankAccounts.push(item);
         }
         else if (item.type === "Mutual Funds") {
             totalCmf += parseInt(item.amount);
             totalAmf += parseInt(item.amountInvested);
+            savingsWithoutBankAccounts.push(item);
         }
         else if (item.type === "Savings") {
             totalCsv += parseInt(item.amount);
             totalAsv += parseInt(item.amountInvested);
         }        
     });
+
+    let contents = this.state.loading
+        ? <p><em>Loading...</em></p>
+        : Savings.renderSavingsTable(savingsWithoutBankAccounts);
     console.log(totalCs);
     console.log(totalCmf);
     console.log(totalCsv);
@@ -131,10 +139,10 @@ export class Savings extends Component {
                     </tr>
 
                     <tr>
-                        <td colspan="2"><p className="text-center" className={totalCv - totalAv >= 0 ? 'text-center bg-success' : 'text-center bg-danger'}>{Math.round((totalCv - totalAv) * 100 / totalAv)}%</p></td>
-                        <td colspan="2"><p className="text-center" className={totalCv - totalAv >= 0 ? 'text-center bg-success' : 'text-center bg-danger'}>{Math.round((totalCmf - totalAmf) * 100 / totalAmf)}%</p></td>
-                        <td colspan="2"><p className="text-center" className={totalCv - totalAv >= 0 ? 'text-center bg-success' : 'text-center bg-danger'}>{Math.round((totalCs - totalAs) * 100 / totalAs)}%</p></td>
-                        <td colspan="2"><p className="text-center" className={totalCv - totalAv >= 0 ? 'text-center bg-success' : 'text-center bg-danger'}>{Math.round((totalCsv - totalAsv) * 100 / totalAsv)}%</p></td>
+                        <td colspan="2"><p className="text-center" className={totalCv - totalAv >= 0 ? 'text-center bg-success' : 'text-center bg-danger'}>{((totalCv - totalAv) * 100 / totalAv).toFixed(2)}%</p></td>
+                        <td colspan="2"><p className="text-center" className={totalCmf - totalAmf >= 0 ? 'text-center bg-success' : 'text-center bg-danger'}>{((totalCmf - totalAmf) * 100 / totalAmf).toFixed(2)}%</p></td>
+                        <td colspan="2"><p className="text-center" className={totalCs - totalAs >= 0 ? 'text-center bg-success' : 'text-center bg-danger'}>{((totalCs - totalAs) * 100 / totalAs).toFixed(2)}%</p></td>
+                        <td colspan="2"><p className="text-center" className={totalCsv - totalAsv >= 0 ? 'text-center bg-success' : 'text-center bg-danger'}>{((totalCsv - totalAsv) * 100 / totalAsv).toFixed(2)}%</p></td>
                     </tr>
                 </tbody>
             </table>

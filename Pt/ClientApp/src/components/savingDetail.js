@@ -30,7 +30,7 @@ export class SavingDetail extends Component {
           // labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
           datasets: [
               {
-                  type: 'bar',
+                  type: 'line',
                   label: 'Amount Invested',
                   data: saving.amountHistory,
                   fill: false,
@@ -100,7 +100,7 @@ export class SavingDetail extends Component {
                       position: 'left',
                       id: 'y-axis-1',
                       gridLines: {
-                          display: false
+                          display: true
                       },
                       labels: {
                           show: true,
@@ -114,7 +114,7 @@ export class SavingDetail extends Component {
                       position: 'right',
                       id: 'y-axis-2',
                       gridLines: {
-                          display: false
+                          display: true
                       },
                       labels: {
                           show: true

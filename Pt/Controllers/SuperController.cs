@@ -22,7 +22,7 @@ namespace Pt.Controllers
         public IEnumerable<PortfolioItem> Get()
         {
             var combinedView = _dbContext.Query<CombinedView>().Where(a => a.Type == "SMSF").ToList();
-            List<PortfolioItem> portfolio = Shared.GetPortfolioGroupedByCode(combinedView, 1.3m);
+            List<PortfolioItem> portfolio = Shared.GetPortfolioGroupedByCode(combinedView, exr);
             portfolio = portfolio.OrderBy(a => a.Type).ThenByDescending(a => a.AmountInvested).ToList();
             return portfolio;
         }
@@ -35,7 +35,7 @@ namespace Pt.Controllers
         {
             var combinedView = _dbContext.Query<CombinedView>().Where(a=>a.Code == id);
 
-            return Shared.Get(combinedView,1.3m);
+            return Shared.Get(combinedView, exr);
         }
 
         // POST api/<controller>

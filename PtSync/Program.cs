@@ -85,6 +85,7 @@ namespace PtSync
                         {
                             var tds = row.ChildNodes.Where(a => a.Name == "td").ToList();
                             var ib = new Ib();
+                            if(date.Length < 8) date = date + "28";
                             ib.Dateimported = DateTime.ParseExact(date, "yyyyMMdd", CultureInfo.InvariantCulture);
                             ib.Symbol = tds[0].InnerText;
                             ib.Quantity = Convert.ToInt32(tds[1].InnerText);

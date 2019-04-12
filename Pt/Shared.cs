@@ -33,6 +33,7 @@ namespace Pt
                         .Select(b => Math.Round(b.Cmp, 2)).ToArray(),
                     CmpHistoryDesc = group.OrderByDescending(a => a.ValueDate)
                         .Select(b => Math.Round(b.Cmp, 2)).ToArray(),
+                    Qty = group.OrderByDescending(b => b.ValueDate).First().Qty
 
                 }).ToList();
 
@@ -70,6 +71,8 @@ namespace Pt
                     / cvitem.CmpHistoryDesc.Take(100).Last()), 2);
             }
 
+            cv = cv.Where(a => a.Qty > 0).ToList();
+
             return cv;
         }
         public static PortfolioItem Get(IQueryable<CombinedView> combinedView, decimal exchangeRate)
@@ -85,18 +88,19 @@ namespace Pt
                 Name = combinedView.Max(b => b.Name),
                 Type = combinedView.Max(b => b.Type),
                 AmountHistory = combinedView.OrderByDescending(b => b.ValueDate)
-                        .Take(20)
+                        //.Take(20)
                         .OrderBy(a => a.ValueDate)
                         .Select(b => Math.Round(b.Value / exchangeRate, 2)).ToArray(),
                 AmountRecordedDateHistory = combinedView.OrderByDescending(b => b.ValueDate)
-                        .Take(20)
+                        //.Take(20)
                         .OrderBy(a => a.ValueDate)
                         .Select(b => b.ValueDate.ToShortDateString()).ToArray(),
                 Code = combinedView.Max(b => b.Code),
                 CmpHistory = combinedView.OrderByDescending(b => b.ValueDate)
-                        .Take(20)
+                        //.Take(20)
                         .OrderBy(a => a.ValueDate)
-                        .Select(b => Math.Round(b.Cmp, 2)).ToArray()
+                        .Select(b => Math.Round(b.Cmp, 2)).ToArray(),
+                Qty = combinedView.OrderByDescending(b => b.ValueDate).First().Qty
             };
 
             return portfolio;

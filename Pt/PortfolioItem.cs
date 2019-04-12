@@ -26,5 +26,6 @@ namespace Pt.Controllers
         public decimal Last5DaysMpPct { get; set; }
         public decimal Last20DaysMpPct { get; set; }
         public decimal Last100DaysMpPct { get; set; }
+        public decimal Qty { get; set; }
     }
 }
